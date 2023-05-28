@@ -1,0 +1,22 @@
+//@version=2
+strategy(title="EMA Crossover", shorttitle="EMA Crossover")
+fastLength = input(8, minval=1)
+slowLength = input(16,minval=1)
+signalLength=input(11,minval=1)
+reverse = input(false, title="Trade reverse")
+hline(0, color=purple, linestyle=dashed)
+fastMA = ema(close, fastLength)
+slowMA = ema(close, slowLength)
+macd = fastMA - slowMA
+signal = sma(macd, signalLength)
+pos = iff(signal < macd , 1,
+	   iff(signal > macd, -1, nz(pos[1], 0))) 
+possig = iff(reverse and pos == 1, -1,
+          iff(reverse and pos == -1, 1, pos))	   
+if (possig == 1) 
+    strategy.entry("Long", strategy.long)
+if (possig == -1)
+    strategy.entry("Short", strategy.short)	   	    
+barcolor(possig == -1 ? red: possig == 1 ? green : blue )  
+plot(signal, color=red, title="SIGNAL")
+plot(macd, color=blue, title="MACD")
